@@ -75,15 +75,6 @@ bool step2 = false;
 bool step3 = false;
 bool step4 = false;
 
-// Declare SK6812 SMART LED object
-//   Argument 1 = Number of LEDs (pixels) in use
-//   Argument 2 = ESP32 pin number 
-//   Argument 3 = Pixel type flags, add together as needed:
-//     NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//     NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//     NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//     NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-//     NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 Adafruit_NeoPixel SmartLEDs(SMART_LED_COUNT, SMART_LED, NEO_RGB + NEO_KHZ800);
 
 // smart LED brightness for heartbeat
@@ -93,12 +84,12 @@ unsigned char LEDBrightnessLevels[] = {5,15,30,45,60,75,90,105,120,135,150,165,1
 
 unsigned int  robotModeIndex = 0;                                              // robot operational state                              
 unsigned int  modeIndicator[6] = {                                             // colours for different modes
-  SmartLEDs.Color(255,0,0),                                                   //   red - stop
+  SmartLEDs.Color(255,0,255),                                                   //   magenta - stop
   SmartLEDs.Color(0,255,0),                                                   //   green - run
   SmartLEDs.Color(0,0,255),                                                   //   blue - empty case
   SmartLEDs.Color(255,255,0),                                                 //   yellow - empty case
   SmartLEDs.Color(0,255,255),                                                 //   cyan - empty case
-  SmartLEDs.Color(255,0,255)                                                  //   magenta - empty case
+  SmartLEDs.Color(255,0,0)                                                  //   red - empty case
 };                                                                            
 
 Encoder encoder[] = {{ENCODER_LEFT_A, ENCODER_LEFT_B, 0},                      // left encoder, 0 position 
@@ -145,6 +136,10 @@ void loop()
   }
   interrupts();                                                               // turn interrupts back on
 
+
+
+
+//PATH CODE
   currentMicros = micros();                                                   // get current time in microseconds
   if ((currentMicros - previousMicros) >= 2000) {                             // enter when 1 ms has elapsed
      previousMicros = currentMicros;                                          // record current time in microseconds
@@ -155,7 +150,6 @@ void loop()
      timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
      if (timerCount3sec > 3000) {                                             // if 3 seconds have elapsed
         timerCount3sec = 0;                                                   // reset 3 second timer count
-        timeUp3sec = true;                                                    // indicate that 3 seconds have elapsed
         step1 = true;
         driveIndex = 2;                                                       // go reverse
      }
@@ -165,7 +159,7 @@ void loop()
      timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
      if (timerCount2sec > 3000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
-        timeUp2sec = true;                                                    // indicate that 2 seconds have elapsed
+
         step2 = true;
         driveIndex = 1;
 
@@ -175,7 +169,7 @@ void loop()
       timerCount4sec = timerCount4sec + 1;                                     // increment 2 second timer count
      if (timerCount4sec > 3000 ) {                                             // if 2 seconds have elapsed
         timerCount4sec = 0;                                                   // reset 2 second timer count
-        timeUp2sec = true;                                                    // indicate that 2 seconds have elapsed
+
         step3 = true;
         driveIndex = 3;
 
@@ -186,7 +180,7 @@ void loop()
      timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
      if (timerCount2sec > 3000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
-        timeUp2sec = true;                                                    // indicate that 2 seconds have elapsed
+
         driveIndex = 4;
         step1 = false;
         step2 = false;
@@ -227,7 +221,7 @@ void loop()
               robotModeIndex++;                                               // switch to next mode
               robotModeIndex = robotModeIndex & 7;                            // keep mode index between 0 and 7
               timerCount3sec = 0;                                             // reset 3 second timer count
-              timeUp3sec = false;                                             // reset 3 second timer
+
            }
         }
      }
@@ -250,7 +244,7 @@ void loop()
            encoder[0].pos = 0;                                                // clear left encoder
            encoder[1].pos = 0;                                                // clear right encoder
            driveIndex = 0;                                                    // set to drive
-           timeUp2sec = false;                                                // reset 2 second timer
+         
            break;
 
         case 1: // Run robot
