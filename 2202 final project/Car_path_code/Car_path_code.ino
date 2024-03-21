@@ -189,6 +189,14 @@ void loop()
      }
   }
 
+  if (step4 == true) {
+        step1 = false;
+        step2 = false;
+        step3 = false;
+        step3 = true;
+     
+  }
+
 
 
 
