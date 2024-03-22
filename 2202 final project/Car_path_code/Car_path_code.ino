@@ -140,15 +140,11 @@ void loop()
 
 
 //PATH CODE
-  currentMicros = micros();                                                   // get current time in microseconds
-  if ((currentMicros - previousMicros) >= 2000) {                             // enter when 1 ms has elapsed
-     previousMicros = currentMicros;                                          // record current time in microseconds
-
-     
+  currentMicros = millis();                                                   // get current time in microseconds
     if (step1 == false) {
      // 3 second timer, counts 3000 milliseconds
      timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
-     if (timerCount3sec > 3000) {                                             // if 3 seconds have elapsed
+     if (timerCount3sec > 120000) {                                             // if 3 seconds have elapsed
         timerCount3sec = 0;                                                   // reset 3 second timer count
         step1 = true;
         driveIndex = 2;                                                       // go reverse
@@ -157,9 +153,8 @@ void loop()
     if (step2 == false && step1 == true) {
      // 2 second timer, counts 2000 milliseconds
      timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
-     if (timerCount2sec > 3000) {                                             // if 2 seconds have elapsed
+     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
-
         step2 = true;
         driveIndex = 1;
 
@@ -167,7 +162,7 @@ void loop()
     }
   if (step3 == false && step2 == true) {
       timerCount4sec = timerCount4sec + 1;                                     // increment 2 second timer count
-     if (timerCount4sec > 3000 ) {                                             // if 2 seconds have elapsed
+     if (timerCount4sec > 120000 ) {                                             // if 2 seconds have elapsed
         timerCount4sec = 0;                                                   // reset 2 second timer count
 
         step3 = true;
@@ -176,25 +171,25 @@ void loop()
      }
   }
   if (step4 == false && step3 == true) {
-    // 2 second timer, counts 2000 milliseconds
+   
      timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
-     if (timerCount2sec > 3000) {                                             // if 2 seconds have elapsed
+     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
-
+        step4 = true;
         driveIndex = 4;
-        step1 = false;
-        step2 = false;
-        step3 = false;
-     
      }
   }
 
   if (step4 == true) {
+     timerCount2sec = timerCount2sec + 1;  
+     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
+        timerCount2sec = 0;                                                   // reset 2 second timer count
+
         step1 = false;
         step2 = false;
         step3 = false;
-        step3 = true;
-     
+        step4 = false;
+     }
   }
 
 
@@ -346,7 +341,7 @@ void loop()
         SmartLEDs.setBrightness(LEDBrightnessLevels[LEDBrightnessIndex]);    // set brightness of heartbeat LED
         Indicator();                                                         // update LED
      }
-  }
+  
 }   
 
 // Set colour of Smart LED depending on robot mode (and update brightness)
