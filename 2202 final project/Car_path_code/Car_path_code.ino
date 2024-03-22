@@ -24,17 +24,6 @@ struct Encoder {
 #define ENCODER_LEFT_B      16                                                 // left encoder B signal is connected to pin 8 GPIO16 (J16)
 #define ENCODER_RIGHT_A     11                                                 // right encoder A signal is connected to pin 19 GPIO11 (J11)
 #define ENCODER_RIGHT_B     12                                                 // right encoder B signal is connected to pin 20 GPIO12 (J12)
-
-
-
-#define ENCODER_LEFT_C      4                                                 
-#define ENCODER_LEFT_D      5                                                 
-#define ENCODER_RIGHT_C     6                                               
-#define ENCODER_RIGHT_D     7                                         
-
-
-
-
 #define MODE_BUTTON         0                                                  // GPIO0  pin 27 for Push Button 1
 #define MOTOR_ENABLE_SWITCH 3                                                  // DIP Switch S1-1 pulls Digital pin D3 to ground when on, connected to pin 15 GPIO3 (J3)
 #define POT_R1              1                                                  // when DIP Switch S1-3 is on, Analog AD0 (pin 39) GPIO1 is connected to Poteniometer R1
@@ -57,13 +46,10 @@ const int cCountsRev = 1096;                                                   /
 // Variables
 boolean motorsEnabled = true;                                                  // motors enabled flag
 boolean timeUp3sec = false;                                                    // 3 second timer elapsed flag
-boolean timeUp2sec = false;                                                    // 2 second timer elapsed flag
 unsigned char driveSpeed;                                                      // motor drive speed (0-255)
 unsigned char driveIndex;                                                      // state index for run mode
 unsigned int  modePBDebounce;                                                  // pushbutton debounce timer count
 unsigned long timerCount3sec = 0;                                              // 3 second timer count in milliseconds
-unsigned long timerCount2sec = 0;                                              // 2 second timer count in milliseconds
-unsigned long timerCount4sec = 0;                                              // 4 second timer count in milliseconds
 unsigned long displayTime;                                                     // heartbeat LED update timer
 unsigned long previousMicros;                                                  // last microsecond count
 unsigned long currentMicros;                                                   // current microsecond count
@@ -140,55 +126,55 @@ void loop()
 
 
 //PATH CODE
-  currentMicros = millis();                                                   // get current time in microseconds
+  currentMicros = millis();                                                   // get current time in microseconds. Time has been scaled as the timer on the aurdino was broken and started counting too fast
     if (step1 == false) {
      // 3 second timer, counts 3000 milliseconds
      timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
      if (timerCount3sec > 120000) {                                             // if 3 seconds have elapsed
         timerCount3sec = 0;                                                   // reset 3 second timer count
         step1 = true;
-        driveIndex = 2;                                                       // go reverse
+        driveIndex = 3;                                                       // go forward
      }
     }
     if (step2 == false && step1 == true) {
-     // 2 second timer, counts 2000 milliseconds
-     timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
-     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
-        timerCount2sec = 0;                                                   // reset 2 second timer count
+     // 3 second timer, counts 3000 milliseconds
+     timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
+     if (timerCount3sec > 120000) {                                             // if 3 seconds have elapsed
+        timerCount2sec = 0;                                                   // reset 3 second timer count
         step2 = true;
-        driveIndex = 1;
+        driveIndex = 4;                                                      // go backward
 
      }
     }
   if (step3 == false && step2 == true) {
-      timerCount4sec = timerCount4sec + 1;                                     // increment 2 second timer count
-     if (timerCount4sec > 120000 ) {                                             // if 2 seconds have elapsed
-        timerCount4sec = 0;                                                   // reset 2 second timer count
+      timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
+     if (timerCount3sec > 120000 ) {                                             // if 3 seconds have elapsed
+        timerCount3sec = 0;                                                   // reset 3 second timer count
 
         step3 = true;
-        driveIndex = 3;
+        driveIndex = 1;                                                       // go right
 
      }
   }
   if (step4 == false && step3 == true) {
    
-     timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
-     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
-        timerCount2sec = 0;                                                   // reset 2 second timer count
+     timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
+     if (timerCount3sec > 120000) {                                             // if 3 seconds have elapsed
+        timerCount3sec = 0;                                                   // reset 3 second timer count
         step4 = true;
-        driveIndex = 4;
+        driveIndex = 2;                                                      // go left
      }
   }
 
   if (step4 == true) {
-     timerCount2sec = timerCount2sec + 1;  
-     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
-        timerCount2sec = 0;                                                   // reset 2 second timer count
+     timerCount3sec = timerCount3sec + 1;  
+     if (timerCount2sec > 120000) {                                             // if 3 seconds have elapsed
+        timerCount3sec = 0;                                                   // reset 3 second timer count
 
         step1 = false;
         step2 = false;
         step3 = false;
-        step4 = false;
+        step4 = false;                                                        // reset cycle
      }
   }
 
@@ -246,7 +232,7 @@ void loop()
            setMotor(0, 0, cIN1Chan[1], cIN2Chan[1]);                          // stop right motor
            encoder[0].pos = 0;                                                // clear left encoder
            encoder[1].pos = 0;                                                // clear right encoder
-           driveIndex = 0;                                                    // set to drive
+           driveIndex = 0;                                                 
          
            break;
 
@@ -277,28 +263,28 @@ void loop()
                           //driveIndex = 1;                                     // next state: drive forward
                           break;
 
-                       case 1: // Drive forward — motors spin in opposite directions as they are opposed by 180 degrees
+                       case 1: // Drive left — motors spin in opposite directions as they are opposed by 180 degrees
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);  // left motor forward
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]); // right motor reverse (opposite dir from left)
-                          //driveIndex = 2;                                     // next state: drive backward
+                      
                           break;
 
-                       case 2: // Drive backward — motors spin in opposite directions as they are opposed by 180 degrees
+                       case 2: // Drive right — motors spin in opposite directions as they are opposed by 180 degrees
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]); // left motor reverse 
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);  // right motor forward (opposite dir from right)
-                          //driveIndex = 3;                                     // next state: turn left
+                 
                           break;
 
-                       case 3: // Turn left (counterclockwise) - motors spin in same direction
+                       case 3: // Drive forward - motors spin in same direction
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]); // left motor reverse
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]); // right motor reverse
-                          //driveIndex = 4;                                     // next state: turn right
+                         
                           break;
 
-                       case 4: // Turn right (clockwise) — motors spin in same direction
+                       case 4: // Drive backward
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);  // left motor forward
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);  // right motor forward
-                         // driveIndex = 0;                                     // next state: stop
+        
                           break;
                     }
                  
