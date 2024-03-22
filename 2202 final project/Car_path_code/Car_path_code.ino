@@ -144,29 +144,29 @@ void loop()
     if (step1 == false) {
      // 3 second timer, counts 3000 milliseconds
      timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
-     if (timerCount3sec > 120000) {                                             // if 3 seconds have elapsed
+     if (timerCount3sec > 100) {                                             // if 3 seconds have elapsed
         timerCount3sec = 0;                                                   // reset 3 second timer count
         step1 = true;
-        driveIndex = 2;                                                       // go reverse
+        driveIndex = 3;                                                       // go reverse
      }
     }
     if (step2 == false && step1 == true) {
      // 2 second timer, counts 2000 milliseconds
      timerCount2sec = timerCount2sec + 1;                                     // increment 2 second timer count
-     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
+     if (timerCount2sec > 100000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
         step2 = true;
-        driveIndex = 1;
+        driveIndex = 4;
 
      }
     }
   if (step3 == false && step2 == true) {
       timerCount4sec = timerCount4sec + 1;                                     // increment 2 second timer count
-     if (timerCount4sec > 120000 ) {                                             // if 2 seconds have elapsed
+     if (timerCount4sec > 100000 ) {                                             // if 2 seconds have elapsed
         timerCount4sec = 0;                                                   // reset 2 second timer count
 
         step3 = true;
-        driveIndex = 3;
+        driveIndex = 1;
 
      }
   }
@@ -176,13 +176,13 @@ void loop()
      if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
         step4 = true;
-        driveIndex = 4;
+        driveIndex = 2;
      }
   }
 
   if (step4 == true) {
      timerCount2sec = timerCount2sec + 1;  
-     if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
+     if (timerCount2sec > 100000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
 
         step1 = false;
