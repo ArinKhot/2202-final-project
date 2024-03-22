@@ -1,3 +1,10 @@
+
+// DOUBLE DRIVER CODE
+
+
+
+
+
 #define DEBUG_DRIVE_SPEED    1
 #define DEBUG_ENCODER_COUNT  1
 
@@ -140,14 +147,14 @@ void loop()
 
 
 //PATH CODE
-  currentMicros = millis();                                                   // get current time in microseconds
+  currentMicros = millis();                                                   // get current time in milliseconds
     if (step1 == false) {
-     // 3 second timer, counts 3000 milliseconds
-     timerCount3sec = timerCount3sec + 1;                                     // increment 3 second timer count
-     if (timerCount3sec > 100) {                                             // if 3 seconds have elapsed
+     
+     timerCount3sec = timerCount3sec + 1;                                    
+     if (timerCount3sec > 100) {                                             // if 0.1 seconds have elapsed
         timerCount3sec = 0;                                                   // reset 3 second timer count
         step1 = true;
-        driveIndex = 3;                                                       // go reverse
+        driveIndex = 3;                                                       // go forward
      }
     }
     if (step2 == false && step1 == true) {
@@ -156,7 +163,7 @@ void loop()
      if (timerCount2sec > 100000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
         step2 = true;
-        driveIndex = 4;
+        driveIndex = 4;                                                       //goes reverse
 
      }
     }
@@ -166,7 +173,7 @@ void loop()
         timerCount4sec = 0;                                                   // reset 2 second timer count
 
         step3 = true;
-        driveIndex = 1;
+        driveIndex = 1;                                                       // turns right
 
      }
   }
@@ -176,7 +183,7 @@ void loop()
      if (timerCount2sec > 120000) {                                             // if 2 seconds have elapsed
         timerCount2sec = 0;                                                   // reset 2 second timer count
         step4 = true;
-        driveIndex = 2;
+        driveIndex = 2;                                                        // turns left
      }
   }
 
@@ -274,31 +281,31 @@ void loop()
                        case 0: // Stop
                           setMotor(0, 0, cIN1Chan[0], cIN2Chan[0]);           // stop left motor
                           setMotor(0, 0, cIN1Chan[1], cIN2Chan[1]);           // stop right motor
-                          //driveIndex = 1;                                     // next state: drive forward
+                                                           
                           break;
 
                        case 1: // Drive forward — motors spin in opposite directions as they are opposed by 180 degrees
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);  // left motor forward
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]); // right motor reverse (opposite dir from left)
-                          //driveIndex = 2;                                     // next state: drive backward
+                         
                           break;
 
                        case 2: // Drive backward — motors spin in opposite directions as they are opposed by 180 degrees
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]); // left motor reverse 
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);  // right motor forward (opposite dir from right)
-                          //driveIndex = 3;                                     // next state: turn left
+                          
                           break;
 
                        case 3: // Turn left (counterclockwise) - motors spin in same direction
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]); // left motor reverse
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]); // right motor reverse
-                          //driveIndex = 4;                                     // next state: turn right
+                         
                           break;
 
                        case 4: // Turn right (clockwise) — motors spin in same direction
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);  // left motor forward
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);  // right motor forward
-                         // driveIndex = 0;                                     // next state: stop
+                       
                           break;
                     }
                  
