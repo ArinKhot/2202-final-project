@@ -1,4 +1,4 @@
-#define DEBUG_DRIVE_SPEED    1
+#define DEBUG_DRIVE_SPEED    1 //test
 #define DEBUG_ENCODER_COUNT  1
 
 #include <Adafruit_NeoPixel.h>
