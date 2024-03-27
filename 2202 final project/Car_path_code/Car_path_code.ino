@@ -156,7 +156,7 @@ void loop()
     }
     if (step2 == false && step1 == true) { 
      timer = timer + 1;                                    
-      if (timer > 100000) {                             
+      if (timer > 50000) {                             
          timer = 0;                                                  
          step2 = true;
          driveIndex = 4;                                                     
@@ -165,7 +165,7 @@ void loop()
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 100000 ) {                                    
+      if (timer > 50000 ) {                                    
         timer = 0;                                         
         step3 = true;
         driveIndex = 1;                                                     
@@ -174,7 +174,7 @@ void loop()
 
     if (step4 == false && step3 == true) {  
      timer = timer + 1;                                    
-      if (timer > 120000) {                             
+      if (timer > 50000) {                             
         timer= 0;                                         
         step4 = true;
         driveIndex = 2;                                                   
@@ -183,7 +183,7 @@ void loop()
 
     if (step4 == true) {
      timer = timer + 1;  
-      if (timer> 100000) {                                          
+      if (timer> 50000) {                                          
         timer = 0;                                                 
         step1 = false;
         step2 = false;
@@ -242,7 +242,10 @@ switch(robotModeIndex) {
            encoder[2].pos = 0;                                                // clear back left encoder
            encoder[3].pos = 0;                                                // clear back right encoder
            driveIndex = 0;                                                    // set to drive
-         
+            step1 = false;
+            step2 = false;
+            step3 = false;
+            step4 = false;
            break;
 
         case 1: // Run robot
@@ -250,6 +253,7 @@ switch(robotModeIndex) {
               // Read pot to update drive motor speed
               pot = analogRead(POT_R1);
               driveSpeed = map(pot, 0, 4095, cMinPWM, cMaxPWM);
+
  #ifdef DEBUG_DRIVE_SPEED 
               Serial.print(F("Drive Speed: Pot R1 = "));
               Serial.print(pot);
