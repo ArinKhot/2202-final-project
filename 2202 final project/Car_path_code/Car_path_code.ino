@@ -1,3 +1,9 @@
+// sorter code
+
+
+
+
+
 #define PRINT_COLOUR                                  // uncomment to turn on output of colour sensor data
 
 #define LEFT_RAMP_SERVO         39  
@@ -46,11 +52,13 @@ const int slideServoGreen = 150;
 const int slideServoOther = 30;
 
 //timer
+ int clock = 0;
  int timer = 0;
  bool step1 = false;
  bool step2 = false;
  bool step3 = false;
  bool step4 = false;
+ bool green = false;
 
 
 // Variables
@@ -133,10 +141,102 @@ void loop() {
 
 
 
+clock = clock + 1;
+if (clock>10000){
+ 
+ ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoUp)); //change angle
+ ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoUp));
+
+   if (step1 == false) {
+     timer = timer + 1;                          
+      if (timer > 1000) {                             
+                           // add timer 0 if you use if bead present below                            
+        
+       
+       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoMiddle));
+
+
+
+        uint16_t r, g, b, c;                                // RGBC values from TCS34725
+ 
+ digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)
+ if (tcsFlag) {                                      // if colour sensor initialized
+   tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values
+#ifdef PRINT_COLOUR            
+     Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
+#endif
+   //Check if the color is green (adjust the thresholds as needed)
+   if (g > r && g > b && g > 30) {
+
+    green = true;
+
+  }
+ }
+
+
+
+        if (timer > 4000){
+          step1 = true;
+          timer = 0;
+
+        }
+      }
+    }
+
+     if (step2 == false && step1 == true) {
+       if (green){
+        ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
+       }
+       else {
+        ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));
+       }
+
+      timer = timer + 1;
+      if (timer > 1000){
+       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoEnd));  
+       step2 = true;
+       timer = 0;
+      }
+    }
+
+   
+     if (step3 == false && step2 == true) {
+     timer = timer + 1;
+       if (timer > 1000){
+        ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
+        timer = 0;
+        step1 = false;
+        step2 = false;
+       }
+
+     }
+  }
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //servo demo
 
-if (step1 == false) {
+/*if (step1 == false) {
      
      timer = timer + 1;                          
      if (timer > 100) {                             
@@ -223,6 +323,7 @@ if (curMillis>=120){
 
 
 } 
+*/
   doHeartbeat();                                      // update heartbeat LED
 }
 
