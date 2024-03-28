@@ -39,17 +39,17 @@ const int cLEDSwitch         = 46;                    // DIP switch S1-2 control
 
 // Constants for servos
 const int leftRampServoUp = 150;                     // all temp values
-const int leftRampServoDown = 30;
+const int leftRampServoDown = 75;
 
-const int rightRampServoUp = 150;
-const int rightRampServoDown = 30;
+const int rightRampServoUp = 73;
+const int rightRampServoDown = 148;
 
-const int funnelServoStart = 30;
+const int funnelServoStart = 173;
 const int funnelServoMiddle = 100;
-const int funnelServoEnd = 150;
+const int funnelServoEnd = 88;
 
-const int slideServoGreen = 150;
-const int slideServoOther = 30;
+const int slideServoGreen = 175;
+const int slideServoOther = 90;
 
 //timer
  int clock = 0;
@@ -234,96 +234,7 @@ if (clock>10000){
 
 
 
-//servo demo
 
-/*if (step1 == false) {
-     
-     timer = timer + 1;                          
-     if (timer > 100) {                             
-        timer = 0;                                                
-        step1 = true;
-       // servo 1 pos change
-       ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoUp));
-     }
-    }
-    if (step2 == false && step1 == true) {
-   
-     timer = timer + 1;                                  
-     if (timer > 120000) {                                        
-        timer = 0;                                               
-        step2 = true;
-       // servo 2 pos change
-       //servo 1 back 
-       ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoDown));
-       ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoUp));
-
-     }
-    }
-  if (step3 == false && step2 == true) {
-      timer = timer + 1;                            
-     if (timer > 120000 ) {                                          
-        timer = 0;                                             
-        step3 = true;
-       // servo 2 back 
-       // servo 3 pos change
-       ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoDown));
-       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoMiddle));
-
-     }
-  }
-  if (step4 == false && step3 == true) {
-   
-     timer = timer + 1;                                  
-     if (timer > 120000) {                                          
-        timer = 0;                                        
-        step4 = true;
-        // servo 3 end
-        // servo 4 pos change 
-       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoEnd));
-       ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));
-     }
-  }
-
-  if (step4 == true) {
-     timer = timer + 1;  
-     if (timer > 120000) {                                           
-        timer = 0;                                   
-
-        step1 = false;
-        step2 = false;
-        step3 = false;
-        step4 = false;                                                        // reset cycle
-
-        // servo 4 back
-        //servo 3 back
-       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
-       ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
-     }
-  }
-
-
-
-curMillis = millis();   
-if (curMillis>=120){
-
-
-
-  uint16_t r, g, b, c;                                // RGBC values from TCS34725
-  
-  digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)
-  if (tcsFlag) {                                      // if colour sensor initialized
-    tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values
-#ifdef PRINT_COLOUR            
-      Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
-#endif
-  }
-
-
-
-
-
-} 
-*/
   doHeartbeat();                                      // update heartbeat LED
 }
 
