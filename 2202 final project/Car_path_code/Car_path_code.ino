@@ -45,14 +45,14 @@ const int rightRampServoUp = 73;
 const int rightRampServoDown = 148;
 
 const int funnelServoStart = 173;
-const int funnelServoMiddle = 100;
+const int funnelServoMiddle = 110;
 const int funnelServoEnd = 88;
 
 const int slideServoGreen = 175;
 const int slideServoOther = 90;
 
 //timer
- int clock = 0;
+ int timekeeper = 0;
  int timer = 0;
  bool step1 = false;
  bool step2 = false;
@@ -103,14 +103,14 @@ void setup() {
   pinMode(cLEDSwitch, INPUT_PULLUP);                  // configure GPIO to set state of TCS34725 LED 
 
   // Connect to TCS34725 colour sensor
-  if (tcs.begin()) {
+ /* if (tcs.begin()) {
     Serial.printf("Found TCS34725 colour sensor\n");
     tcsFlag = true;
   } 
   else {
     Serial.printf("No TCS34725 found ... check your connections\n");
     tcsFlag = false;
-  }
+  } */
 
 
   //servo setup
@@ -134,6 +134,12 @@ void setup() {
   ledcAttachPin(SLIDE_SERVO, PSLIDE_SERVO);         // assign servo pin to servo channel
  
   
+// inital servo pos
+ ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoDown)); 
+ ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoDown));
+ ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
+ ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
+
 
 }
 
@@ -141,72 +147,75 @@ void loop() {
 
 
 
-clock = clock + 1;
-if (clock>10000){
+timekeeper = timekeeper + 1;
+if (timekeeper>1000000){
  
- ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoUp)); //change angle
+ ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoUp)); 
  ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoUp));
 
    if (step1 == false) {
      timer = timer + 1;                          
-      if (timer > 1000) {                             
+      if (timer > 100000) {                             
                            // add timer 0 if you use if bead present below                            
         
        
        ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoMiddle));
 
-
-
-        uint16_t r, g, b, c;                                // RGBC values from TCS34725
- 
- digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)
- if (tcsFlag) {                                      // if colour sensor initialized
-   tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values
-#ifdef PRINT_COLOUR            
-     Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
-#endif
-   //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 30) {
-
-    green = true;
-
+   step1 = true;
+   timer = 0;
   }
  }
+    
 
 
+if (step2 == false && step1 == true) {
 
-        if (timer > 4000){
-          step1 = true;
-          timer = 0;
+      uint16_t r, g, b, c;                                // RGBC values from TCS34725
+ 
+ digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)
+ //if (tcsFlag) {                                      // if colour sensor initialized
+   tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values
+//#ifdef PRINT_COLOUR            
+     Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
+//#endif 
+   //Check if the color is green (adjust the thresholds as needed)
+   if (g > r && g > b && g > 30 && g < 60) {
+    green = true;
+    Serial.printf("sensed green\n");
+    ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
+  }
+  else{
+    green = false;
+    Serial.printf("sensed other\n");
+    ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));
+  }
+ //}
 
-        }
-      }
-    }
 
-     if (step2 == false && step1 == true) {
-       if (green){
-        ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
-       }
-       else {
-        ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));
-       }
-
-      timer = timer + 1;
-      if (timer > 1000){
+  timer = timer + 1;
+      if (timer > 400){
+        Serial.printf("%d\n",timer);
        ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoEnd));  
        step2 = true;
        timer = 0;
       }
-    }
+
+   }
+
+
+
+     
 
    
-     if (step3 == false && step2 == true) {
+     if (step3 == false && step2== true) {
      timer = timer + 1;
-       if (timer > 1000){
+       if (timer > 100000){
         ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
         timer = 0;
         step1 = false;
         step2 = false;
+       
+        
        }
 
      }
@@ -215,28 +224,28 @@ if (clock>10000){
 
 
 
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   doHeartbeat();                                      // update heartbeat LED
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
