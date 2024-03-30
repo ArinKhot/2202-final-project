@@ -77,7 +77,8 @@ bool step1 = false;
 bool step2 = false;
 bool step3 = false;
 bool step4 = false;
-
+bool step5 = false;
+int  count = 0; 
 
 Adafruit_NeoPixel SmartLEDs(SMART_LED_COUNT, SMART_LED, NEO_RGB + NEO_KHZ800);
 
@@ -144,6 +145,8 @@ void loop()
   }
   interrupts();                                                               // turn interrupts back on
 
+// 11400 to go left . drive index 2 
+// 11600 to go right. drive index 1
 
 
     if (step1 == false) { 
@@ -151,45 +154,74 @@ void loop()
       if (timer > 100) {                                            
           timer = 0;                                                   
           step1 = true;
-          driveIndex = 3;                                                      
+          driveIndex = 4;                                                      
       }
     }
     if (step2 == false && step1 == true) { 
      timer = timer + 1;                                    
-      if (timer > 50000) {                             
+      if (timer > 80000) {                             
          timer = 0;                                                  
          step2 = true;
-         driveIndex = 4;                                                     
+         driveIndex = 1;                                                     
       }
+
     }
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 50000 ) {                                    
+      if (timer > 11600 ) {                                    
         timer = 0;                                         
-        step3 = true;
-        driveIndex = 1;                                                     
+        step3 = true;                                                    
       }
     }
 
-    if (step4 == false && step3 == true) {  
+    if (step4 == false && step3 == true) {  // right 180 turn
+     driveIndex = 4;  
      timer = timer + 1;                                    
-      if (timer > 50000) {                             
-        timer= 0;                                         
+      if (timer > 60000) {                                                                          
+        driveIndex = 1;                                                   
+      }
+      if (timer > 71500) {                            
+        driveIndex = 4;                                                   
+      }
+      if (timer > 80000) {                             
+        driveIndex = 1;                                                   
+      }
+      if (timer > 91500){
+         timer= 0;                                         
         step4 = true;
+      }
+    }
+
+     if (step4 == true && step5 == false) {  // left 180 turn
+    driveIndex = 4;  
+     timer = timer + 1;                                    
+      if (timer > 60000) {                                                                          
         driveIndex = 2;                                                   
       }
+      if (timer > 71400) {                            
+        driveIndex = 4;                                                   
+      }
+      if (timer > 79000) {                             
+        driveIndex = 2;                                                   
+      }
+      if (timer > 90400){
+         timer= 0;                                         
+        step5 = true;
+      }
     }
 
-    if (step4 == true) {
-     timer = timer + 1;  
-      if (timer> 50000) {                                          
-        timer = 0;                                                 
-        step1 = false;
-        step2 = false;
-        step3 = false;
+    if (step5 == true) {
+                                           
+        if (count<7){
         step4 = false;
-      }
+        step5 = false;
+        count++;
+        }
+        else {
+        driveIndex = 0; 
+        }
+      
     }
 
 
@@ -221,6 +253,8 @@ void loop()
               step2 = false;
               step3 = false;
               step4 = false;
+              step5 = false;
+              count = 0;
            }
         }
      }
@@ -242,10 +276,7 @@ switch(robotModeIndex) {
            encoder[2].pos = 0;                                                // clear back left encoder
            encoder[3].pos = 0;                                                // clear back right encoder
            driveIndex = 0;                                                    // set to drive
-            step1 = false;
-            step2 = false;
-            step3 = false;
-            step4 = false;
+           
            break;
 
         case 1: // Run robot
@@ -278,7 +309,7 @@ switch(robotModeIndex) {
                                                            
                           break;
 
-                       case 1: //turn ?
+                       case 1: //turn right
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);                       
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);                       
                           setMotor(-1, driveSpeed, cIN1Chan[2], cIN2Chan[2]);                     
@@ -286,7 +317,7 @@ switch(robotModeIndex) {
                          
                           break;
 
-                       case 2: // turn ?
+                       case 2: // turn left
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);                       
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);                  
                           setMotor(1, driveSpeed, cIN1Chan[2], cIN2Chan[2]);                          
@@ -294,14 +325,14 @@ switch(robotModeIndex) {
                           
                           break;
 
-                       case 3: //forward
+                       case 3: //backward
                           setMotor(-1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);                       
                           setMotor(1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);                  
                           setMotor(-1, driveSpeed, cIN1Chan[2], cIN2Chan[2]);                          
                           setMotor(1, driveSpeed, cIN1Chan[3], cIN2Chan[3]);     
                           break;
 
-                       case 4: //backward
+                       case 4: //forward
                           setMotor(1, driveSpeed, cIN1Chan[0], cIN2Chan[0]);                       
                           setMotor(-1, driveSpeed, cIN1Chan[1], cIN2Chan[1]);                  
                           setMotor(1, driveSpeed, cIN1Chan[2], cIN2Chan[2]);                          
