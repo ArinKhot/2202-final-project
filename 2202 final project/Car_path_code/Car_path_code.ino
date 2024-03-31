@@ -179,7 +179,7 @@ if (step2 == false && step1 == true) {
      Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
 //#endif 
    //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 30 && g < 60) {
+   if (g > r && g > b && g > 27 && g < 60 && c < 100) {
     green = true;
     Serial.printf("sensed green\n");
     ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
