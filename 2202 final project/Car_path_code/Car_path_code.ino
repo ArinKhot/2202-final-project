@@ -170,7 +170,7 @@ void loop()
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 8700) {                                    
+      if (timer > 9000) {                                    
         timer = 0;                                         
         step3 = true;                                                    
       }
