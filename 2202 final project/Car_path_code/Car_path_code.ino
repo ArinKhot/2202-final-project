@@ -8,7 +8,10 @@
 #define DEBUG_DRIVE_SPEED    1
 #define DEBUG_ENCODER_COUNT  1
 
+
+#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include <MSE2202_Lib.h>
 
 // Function declarations
 void Indicator();                                                              // for mode/heartbeat on Smart LED
@@ -42,7 +45,7 @@ struct Encoder {
 #define ENCODER_FRONT_RIGHT_A    11                                     
 #define ENCODER_FRONT_RIGHT_B    12  
 
-
+#define IR_DETECTOR         14                                                 // GPIO14 pin 17 (J14) IR detector input
 
 #define MODE_BUTTON         0                                                  // GPIO0  pin 27 for Push Button 1
 #define MOTOR_ENABLE_SWITCH 3                                                  // DIP Switch S1-1 pulls Digital pin D3 to ground when on, connected to pin 15 GPIO3 (J3)
@@ -100,6 +103,7 @@ unsigned int  modeIndicator[6] = {                                             /
 Encoder encoder[] = {{ENCODER_FRONT_LEFT_A, ENCODER_FRONT_LEFT_B, 0}, {ENCODER_FRONT_RIGHT_A, ENCODER_FRONT_RIGHT_B, 0},  // front encoders, 0 position
                     {ENCODER_BACK_LEFT_A, ENCODER_BACK_LEFT_B, 0},{ENCODER_BACK_RIGHT_A, ENCODER_BACK_RIGHT_B, 0}}; // back encoders, 0 position  
 
+IR Scan = IR();                                                                // instance of IR for detecting IR signals
 
 
 
@@ -214,24 +218,30 @@ void loop()
 
     if (step5 == true) {
                                            
-        if (count<5){
+        if (count<0){
         step4 = false;
         step5 = false;
         count++;
         }
         else {
-          driveIndex = 1;
-          timer = timer +1;
-          if (timer>8800){
+          if(Scan.Available()){
+           driveIndex = 1;
+             Serial.println(Scan.Get_IR_Data());                              // output received data to serial
+          if (Scan.Get_IR_Data() == 'U'){
+             timer = timer +1;
+               Serial.println("in loop");                              // output received data to serial
             driveIndex = 4; 
           }
-          if (timer>18800){
+          if (timer>50){
             driveIndex = 3;
+              Serial.println("backing up");                              // output received data to serial
           }
-          if (timer > 28800){
+          if (timer > 100){
             driveIndex = 0;
+              Serial.println("the end");                              // output received data to serial
             
           }
+        }
         }
       
     }
@@ -297,7 +307,7 @@ switch(robotModeIndex) {
               pot = analogRead(POT_R1);
               driveSpeed = map(pot, 0, 4095, cMinPWM, cMaxPWM);
 
- #ifdef DEBUG_DRIVE_SPEED 
+ /*#ifdef DEBUG_DRIVE_SPEED 
               Serial.print(F("Drive Speed: Pot R1 = "));
               Serial.print(pot);
               Serial.print(F(", mapped = "));
@@ -308,7 +318,7 @@ switch(robotModeIndex) {
               Serial.print(pos[0]);
               Serial.print(F(" Right Encoder count = "));
               Serial.println(pos[1]);
- #endif
+ #endif*/
               if (motorsEnabled) {                                            // run motors only if enabled
                                                            
                     
