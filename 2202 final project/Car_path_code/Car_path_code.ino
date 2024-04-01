@@ -123,8 +123,10 @@ void setup()
      pinMode(encoder[k].chanB, INPUT);                                        // configure GPIO for encoder channel B input
      // configure encoder to trigger interrupt with each rising edge on channel A
      attachInterruptArg(encoder[k].chanA, encoderISR, &encoder[k], RISING);
- }
 
+      
+ }
+ Scan.Begin(IR_DETECTOR, 1200);                                              //set up IR Detection @ 1200 baud
   // Set up SmartLED
   SmartLEDs.begin();                                                          // initialize smart LEDs object (REQUIRED)
   SmartLEDs.clear();                                                          // clear pixel
@@ -218,7 +220,7 @@ void loop()
 
     if (step5 == true) {
                                            
-        if (count<0){
+        if (count<5){
         step4 = false;
         step5 = false;
         count++;
