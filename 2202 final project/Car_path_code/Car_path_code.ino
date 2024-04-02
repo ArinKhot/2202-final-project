@@ -38,18 +38,20 @@ const int cTCSLED            = 14;                    // GPIO pin for LED on TCS
 const int cLEDSwitch         = 46;                    // DIP switch S1-2 controls LED on TCS32725    
 
 // Constants for servos
-const int leftRampServoUp = 150;                     // all temp values
+const int leftRampServoUp = 150;               
 const int leftRampServoDown = 75;
 
 const int rightRampServoUp = 73;
 const int rightRampServoDown = 148;
 
-const int funnelServoStart = 173;
-const int funnelServoMiddle = 110;
-const int funnelServoEnd = 88;
+const int funnelServoStart = 171;
+const int funnelServoMiddle = 108;
+const int funnelServoEnd = 86;
 
 const int slideServoGreen = 175;
 const int slideServoOther = 90;
+
+unsigned long MOVING_TIME = 3000; // moving time is 3 seconds
 
 //timer
  int timekeeper = 0;
@@ -141,17 +143,32 @@ void setup() {
  ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
 
 
+// for clock
+prevMillis = millis();
+
 }
 
 void loop() {
 
 
+curMillis = millis();
 
-timekeeper = timekeeper + 1;
-if (timekeeper>1000000){
- 
- ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoUp)); 
- ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoUp));
+if ((curMillis-prevMillis)>5000){
+
+  // angle finding
+  unsigned long progress = millis() - 5000; // same as start time
+
+  if (progress<MOVING_TIME){
+
+   long angleL = map(progress, 0, MOVING_TIME, leftRampServoDown, leftRampServoUp);
+   long angleR = map(progress, 0, MOVING_TIME, rightRampServoDown, rightRampServoUp);
+
+   ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(angleL)); 
+   ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(angleR));
+  }
+
+
+
 
    if (step1 == false) {
      timer = timer + 1;                          
@@ -179,7 +196,7 @@ if (step2 == false && step1 == true) {
      Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
 //#endif 
    //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 27 && g < 60 && c < 100) {
+   if (g > r && g > b && g > 40 && g < 60 && c < 100) {
     green = true;
     Serial.printf("sensed green\n");
     ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
@@ -219,6 +236,13 @@ if (step2 == false && step1 == true) {
        }
 
      }
+
+
+
+
+
+
+
   }
 
 
