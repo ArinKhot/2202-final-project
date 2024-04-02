@@ -44,9 +44,9 @@ const int leftRampServoDown = 75;
 const int rightRampServoUp = 73;
 const int rightRampServoDown = 148;
 
-const int funnelServoStart = 171;
-const int funnelServoMiddle = 108;
-const int funnelServoEnd = 86;
+const int funnelServoStart = 169;
+const int funnelServoMiddle = 106;
+const int funnelServoEnd = 84;
 
 const int slideServoGreen = 175;
 const int slideServoOther = 90;
@@ -172,7 +172,7 @@ if ((curMillis-prevMillis)>5000){
 
    if (step1 == false) {
      timer = timer + 1;                          
-      if (timer > 100000) {                             
+      if (timer > 150000) {                             
                            // add timer 0 if you use if bead present below                            
         
        
@@ -196,7 +196,7 @@ if (step2 == false && step1 == true) {
      Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
 //#endif 
    //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 40 && g < 60 && c < 100) {
+   if (g > r && g > b && g > 35 && g < 60 && c < 122) {
     green = true;
     Serial.printf("sensed green\n");
     ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
@@ -226,7 +226,7 @@ if (step2 == false && step1 == true) {
    
      if (step3 == false && step2== true) {
      timer = timer + 1;
-       if (timer > 100000){
+       if (timer > 150000){
         ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
         timer = 0;
         step1 = false;
