@@ -152,7 +152,7 @@ void loop()
   }
   interrupts();                                                               // turn interrupts back on
 
-// 8700 to go left . drive index 2 
+// 8800 to go left . drive index 2 
 // 9000 to go right. drive index 1
 // extra right value
 
@@ -176,7 +176,7 @@ void loop()
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 10000) {     //extra right for compensation                                
+      if (timer > 9200) {     //extra right for compensation                                
         timer = 0;                                         
         step3 = true;                                                    
       }
@@ -188,13 +188,13 @@ void loop()
       if (timer > 60000) {                                                                          
         driveIndex = 1;                                                   
       }
-      if (timer > 69500) {                            
+      if (timer > 69100) {                            
         driveIndex = 4;                                                   
       }
-      if (timer > 75800) {                             
+      if (timer > 75400) {                             
         driveIndex = 1;                                                   
       }
-      if (timer > 85300){
+      if (timer > 84500){
          timer= 0;                                         
         step4 = true;
       }
@@ -206,13 +206,13 @@ void loop()
       if (timer > 60000) {                                                                          
         driveIndex = 2;                                                   
       }
-      if (timer > 68700) {                            
+      if (timer > 68800) {                            
         driveIndex = 4;                                                   
       }
-      if (timer > 75000) {                             
+      if (timer > 75100) {                             
         driveIndex = 2;                                                   
       }
-      if (timer > 83700){
+      if (timer > 83900){
          timer= 0;                                         
         step5 = true;
       }
@@ -220,7 +220,7 @@ void loop()
 
   if (step5 == true) {
                                            
-        if (count<2){
+        if (count<2 ){
         step4 = false;
         step5 = false;
         count++;
