@@ -38,10 +38,10 @@ const int cTCSLED            = 14;                    // GPIO pin for LED on TCS
 const int cLEDSwitch         = 46;                    // DIP switch S1-2 controls LED on TCS32725    
 
 // Constants for servos
-const int leftRampServoUp = 150;               
+const int leftRampServoUp = 170;               
 const int leftRampServoDown = 75;
 
-const int rightRampServoUp = 73;
+const int rightRampServoUp = 93;
 const int rightRampServoDown = 148;
 
 const int funnelServoStart = 169;
@@ -153,7 +153,7 @@ void loop() {
 
 curMillis = millis();
 
-if ((curMillis-prevMillis)>5000){
+if ((curMillis-prevMillis)>80000){
 
   // angle finding
   unsigned long progress = millis() - 5000; // same as start time
@@ -196,7 +196,7 @@ if (step2 == false && step1 == true) {
      Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
 //#endif 
    //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 35 && g < 60 && c < 122) {
+   if (g > r && g > b && g > 40 && c < 140) {
     green = true;
     Serial.printf("sensed green\n");
     ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
