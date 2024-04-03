@@ -54,6 +54,7 @@ const int slideServoOther = 90;
 unsigned long MOVING_TIME = 3000; // moving time is 3 seconds
 
 //timer
+ int startTime = 80000;
  int timekeeper = 0;
  int timer = 0;
  bool step1 = false;
@@ -153,10 +154,10 @@ void loop() {
 
 curMillis = millis();
 
-if ((curMillis-prevMillis)>80000){
+if ((curMillis-prevMillis)>startTime){
 
   // angle finding
-  unsigned long progress = millis() - 5000; // same as start time
+  unsigned long progress = millis() - startTime; // same as start time
 
   if (progress<MOVING_TIME){
 
