@@ -127,6 +127,7 @@ void setup()
       
  }
  Scan.Begin(IR_DETECTOR, 1200);                                              //set up IR Detection @ 1200 baud
+
   // Set up SmartLED
   SmartLEDs.begin();                                                          // initialize smart LEDs object (REQUIRED)
   SmartLEDs.clear();                                                          // clear pixel
@@ -152,21 +153,20 @@ void loop()
   interrupts();                                                               // turn interrupts back on
 
 // 8700 to go left . drive index 2 
-// 8800 to go right. drive index 1
+// 9000 to go right. drive index 1
 // extra right value
 
 
     if (step1 == false) { 
-     timer = timer + 1;                                    
-      if (timer > 100) {                                            
+                                              
           timer = 0;                                                   
           step1 = true;
           driveIndex = 4;                                                      
-      }
+      
     }
     if (step2 == false && step1 == true) { 
      timer = timer + 1;                                    
-      if (timer > 100000) {                             
+      if (timer > 75000) {                             
          timer = 0;                                                  
          step2 = true;
          driveIndex = 1;                                                     
@@ -176,7 +176,7 @@ void loop()
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 9000) {                                    
+      if (timer > 10000) {     //extra right for compensation                                
         timer = 0;                                         
         step3 = true;                                                    
       }
@@ -188,13 +188,13 @@ void loop()
       if (timer > 60000) {                                                                          
         driveIndex = 1;                                                   
       }
-      if (timer > 69000) {                            
+      if (timer > 69500) {                            
         driveIndex = 4;                                                   
       }
-      if (timer > 75300) {                             
+      if (timer > 75800) {                             
         driveIndex = 1;                                                   
       }
-      if (timer > 84300){
+      if (timer > 85300){
          timer= 0;                                         
         step4 = true;
       }
@@ -218,15 +218,15 @@ void loop()
       }
     }
 
-    if (step5 == true) {
+  if (step5 == true) {
                                            
-        if (count<5){
+        if (count<2){
         step4 = false;
         step5 = false;
         count++;
         }
-        else {
-          if(Scan.Available()){
+    else {
+        if(Scan.Available()){
            driveIndex = 1;
              Serial.println(Scan.Get_IR_Data());                              // output received data to serial
           if (Scan.Get_IR_Data() == 'U'){
@@ -234,19 +234,19 @@ void loop()
                Serial.println("in loop");                              // output received data to serial
             driveIndex = 4; 
           }
-          if (timer>50){
+          if (timer>30){
             driveIndex = 3;
               Serial.println("backing up");                              // output received data to serial
           }
-          if (timer > 100){
+          if (timer > 60){
             driveIndex = 0;
               Serial.println("the end");                              // output received data to serial
             
           }
         }
-        }
+     }
       
-    }
+   }
 
 
 // Mode pushbutton debounce and toggle
@@ -307,7 +307,7 @@ switch(robotModeIndex) {
                                                             
               // Read pot to update drive motor speed
               pot = analogRead(POT_R1);
-              driveSpeed = map(pot, 0, 4095, cMinPWM, cMaxPWM);
+              driveSpeed = map(4095, 0, 4095, cMinPWM, cMaxPWM);
 
  /*#ifdef DEBUG_DRIVE_SPEED 
               Serial.print(F("Drive Speed: Pot R1 = "));
