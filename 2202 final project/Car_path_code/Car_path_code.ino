@@ -176,7 +176,7 @@ void loop()
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 9200) {     //extra right for compensation                                
+      if (timer > 9100) {     //extra right for compensation                                
         timer = 0;                                         
         step3 = true;                                                    
       }
@@ -206,13 +206,13 @@ void loop()
       if (timer > 60000) {                                                                          
         driveIndex = 2;                                                   
       }
-      if (timer > 68800) {                            
+      if (timer > 69100) {                            
         driveIndex = 4;                                                   
       }
-      if (timer > 75100) {                             
+      if (timer > 75400) {                             
         driveIndex = 2;                                                   
       }
-      if (timer > 83900){
+      if (timer > 84500){
          timer= 0;                                         
         step5 = true;
       }
