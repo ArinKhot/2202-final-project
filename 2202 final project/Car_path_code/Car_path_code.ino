@@ -39,10 +39,10 @@ const int cLEDSwitch         = 46;                    // DIP switch S1-2 control
 
 // Constants for servos
 const int leftRampServoUp = 170;               
-const int leftRampServoDown = 75;
+const int leftRampServoDown = 73;
 
 const int rightRampServoUp = 93;
-const int rightRampServoDown = 148;
+const int rightRampServoDown = 150;
 
 const int funnelServoStart = 169;
 const int funnelServoMiddle = 106;
@@ -54,7 +54,7 @@ const int slideServoOther = 90;
 unsigned long MOVING_TIME = 3000; // moving time is 3 seconds
 
 //timer
- int startTime = 80000;
+ int startTime = 50000;
  int timekeeper = 0;
  int timer = 0;
  bool step1 = false;
