@@ -1,20 +1,16 @@
 // sorter code
 
-
-
-
-
 #define PRINT_COLOUR                                  // uncomment to turn on output of colour sensor data
 
-#define LEFT_RAMP_SERVO         39  
-#define RIGHT_RAMP_SERVO        40
-#define FUNNEL_SERVO            41
-#define SLIDE_SERVO             42
+#define LEFT_RAMP_SERVO         39                    // GPIO pin for the servo on the left ramp arm
+#define RIGHT_RAMP_SERVO        40                    // GPIO pin for the servo on the right ramp arm
+#define FUNNEL_SERVO            41                    // GPIO pin for the servo underneath the funnel
+#define SLIDE_SERVO             42                    // GPIO pin for the servo attached to the slide
 
-#define PLEFT_RAMP_SERVO         4
-#define PRIGHT_RAMP_SERVO        5
-#define PFUNNEL_SERVO            6
-#define PSLIDE_SERVO             7
+#define PLEFT_RAMP_SERVO         4                   // PWM channel for left ramp servo
+#define PRIGHT_RAMP_SERVO        5                   // PWM channel for right ramp servo
+#define PFUNNEL_SERVO            6                   // PWM channel for the servo underneath the funnel
+#define PSLIDE_SERVO             7                   // PWM channel for the servo attached to the slide
 
 
 #include <Arduino.h>
@@ -37,8 +33,8 @@ const int cSCL               = 48;                    // GPIO pin for I2C clock
 const int cTCSLED            = 14;                    // GPIO pin for LED on TCS34725
 const int cLEDSwitch         = 46;                    // DIP switch S1-2 controls LED on TCS32725    
 
-// Constants for servos
-const int leftRampServoUp = 180;               
+// angles servos are set to
+const int leftRampServoUp = 180;                     
 const int leftRampServoDown = 73;
 
 const int rightRampServoUp = 83;
@@ -51,17 +47,20 @@ const int funnelServoEnd = 84;
 const int slideServoGreen = 175;
 const int slideServoOther = 90;
 
-unsigned long MOVING_TIME = 2000; // moving time is 3 seconds
 
-//timer
- int startTime = 30000;
- int timekeeper = 0;
- int timer = 0;
- bool step1 = false;
+
+// total time the servo on the ramp arms will take to go from down to up
+unsigned long MOVING_TIME = 2000; // moving time is 2 seconds
+
+
+ int startTime = 30000; // sorter starts operating at 30 seconds
+ int timer = 0;         // timer used to time steps
+
+// boolean variables used to conduct one step at a time
+ bool step1 = false;    
  bool step2 = false;
  bool step3 = false;
  bool step4 = false;
- bool green = false;
 
 
 // Variables
@@ -105,16 +104,6 @@ void setup() {
   pinMode(cTCSLED, OUTPUT);                           // configure GPIO to control LED on TCS34725
   pinMode(cLEDSwitch, INPUT_PULLUP);                  // configure GPIO to set state of TCS34725 LED 
 
-  // Connect to TCS34725 colour sensor
- /* if (tcs.begin()) {
-    Serial.printf("Found TCS34725 colour sensor\n");
-    tcsFlag = true;
-  } 
-  else {
-    Serial.printf("No TCS34725 found ... check your connections\n");
-    tcsFlag = false;
-  } */
-
 
   //servo setup
   pinMode(LEFT_RAMP_SERVO, OUTPUT);                      // configure servo GPIO for output
@@ -137,7 +126,7 @@ void setup() {
   ledcAttachPin(SLIDE_SERVO, PSLIDE_SERVO);         // assign servo pin to servo channel
  
   
-// inital servo pos
+// inital servo positions
  ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(leftRampServoDown)); 
  ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(rightRampServoDown));
  ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
@@ -154,15 +143,14 @@ void loop() {
 
 curMillis = millis();
 
-if ((curMillis-prevMillis)>startTime){
+if ((curMillis-prevMillis)>startTime){ // if the current time is greater than 30 seconds 
 
-  // angle finding
-  unsigned long progress = millis() - startTime; // same as start time
+  unsigned long progress = millis() - startTime; // time since the start time
 
-  if (progress<MOVING_TIME){
+  if (progress<MOVING_TIME){ // used to move the servos at a steady pace instead of a jerk motion
 
-   long angleL = map(progress, 0, MOVING_TIME, leftRampServoDown, leftRampServoUp);
-   long angleR = map(progress, 0, MOVING_TIME, rightRampServoDown, rightRampServoUp);
+   long angleL = map(progress, 0, MOVING_TIME, leftRampServoDown, leftRampServoUp); // angle of left servo dependant on the progress 
+   long angleR = map(progress, 0, MOVING_TIME, rightRampServoDown, rightRampServoUp); // angle of right servo dependant on the progress 
 
    ledcWrite(PLEFT_RAMP_SERVO,degreesToDutyCycle(angleL)); 
    ledcWrite(PRIGHT_RAMP_SERVO,degreesToDutyCycle(angleR));
@@ -173,11 +161,8 @@ if ((curMillis-prevMillis)>startTime){
 
    if (step1 == false) {
      timer = timer + 1;                          
-      if (timer > 150000) {                             
-                           // add timer 0 if you use if bead present below                            
-        
-       
-       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoMiddle));
+      if (timer > 150000) {  // timer to stop the system from starting before the beads fall down the funnel                                                   
+       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoMiddle)); // servo slides the bead under the colour sensor
 
    step1 = true;
    timer = 0;
@@ -190,97 +175,49 @@ if (step2 == false && step1 == true) {
 
       uint16_t r, g, b, c;                                // RGBC values from TCS34725
  
- digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)
- //if (tcsFlag) {                                      // if colour sensor initialized
-   tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values
-//#ifdef PRINT_COLOUR            
-     Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c);
-//#endif 
-   //Check if the color is green (adjust the thresholds as needed)
-   if (g > r && g > b && g > 40 && c < 140) {
-    green = true;
-    Serial.printf("sensed green\n");
-    ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen));
-  }
-  else{
-    green = false;
-    Serial.printf("sensed other\n");
-    ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));
-  }
- //}
+  digitalWrite(cTCSLED, !digitalRead(cLEDSwitch));    // turn on onboard LED if switch state is low (on position)                         
+  tcs.getRawData(&r, &g, &b, &c);                   // get raw RGBC values      
+  Serial.printf("R: %d, G: %d, B: %d, C %d\n", r, g, b, c); // used to callibrate sensor
+
+   //Check if the color is green 
+     if (g > r && g > b && g > 40 && c < 140) { // paramters to identify green glass beads
+       Serial.printf("sensed green\n");
+       ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoGreen)); // servo moves the slides end above the container for green beads
+     }
+     else{
+        Serial.printf("sensed other\n");
+       ledcWrite(PSLIDE_SERVO,degreesToDutyCycle(slideServoOther));  // servo moves the slides end away from the container for green beads
+     }
 
 
   timer = timer + 1;
-      if (timer > 400){
+      if (timer > 400){ // adds delay between the slide moving and dropping the glass bead down the slide
         Serial.printf("%d\n",timer);
-       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoEnd));  
+       ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoEnd));  // positions the glass bead above the hole to drop the glass bead onto the slide
        step2 = true;
        timer = 0;
       }
 
    }
 
-
-
-     
-
    
      if (step3 == false && step2== true) {
      timer = timer + 1;
        if (timer > 150000){
-        ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart));
+        ledcWrite(PFUNNEL_SERVO,degreesToDutyCycle(funnelServoStart)); // sends the moving frame back under the funnel to collect another glass bead
         timer = 0;
-        step1 = false;
-        step2 = false;
-       
-        
+        step1 = false; // resets process
+        step2 = false; // resets process
+             
        }
 
      }
 
 
-
-
-
-
-
   }
-
-
-
 
   doHeartbeat();                                      // update heartbeat LED
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -299,11 +236,6 @@ void doHeartbeat() {
     SmartLEDs.show();                                 // update LED
   }
 }
-
-
-
-
-
 
 
 
