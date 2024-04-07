@@ -38,10 +38,10 @@ const int cTCSLED            = 14;                    // GPIO pin for LED on TCS
 const int cLEDSwitch         = 46;                    // DIP switch S1-2 controls LED on TCS32725    
 
 // Constants for servos
-const int leftRampServoUp = 170;               
+const int leftRampServoUp = 180;               
 const int leftRampServoDown = 73;
 
-const int rightRampServoUp = 93;
+const int rightRampServoUp = 83;
 const int rightRampServoDown = 150;
 
 const int funnelServoStart = 169;
@@ -51,10 +51,10 @@ const int funnelServoEnd = 84;
 const int slideServoGreen = 175;
 const int slideServoOther = 90;
 
-unsigned long MOVING_TIME = 3000; // moving time is 3 seconds
+unsigned long MOVING_TIME = 2000; // moving time is 3 seconds
 
 //timer
- int startTime = 50000;
+ int startTime = 30000;
  int timekeeper = 0;
  int timer = 0;
  bool step1 = false;
