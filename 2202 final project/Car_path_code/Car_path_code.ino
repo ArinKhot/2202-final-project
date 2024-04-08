@@ -37,7 +37,7 @@ const int cLEDSwitch         = 46;                    // DIP switch S1-2 control
 const int leftRampServoUp = 180;                     
 const int leftRampServoDown = 73;
 
-const int rightRampServoUp = 83;
+const int rightRampServoUp = 43;
 const int rightRampServoDown = 150;
 
 const int funnelServoStart = 169;
