@@ -1,10 +1,6 @@
 // double driver code
 
 
-
-
-
-
 #define DEBUG_DRIVE_SPEED    1
 #define DEBUG_ENCODER_COUNT  1
 
@@ -45,7 +41,7 @@ struct Encoder {
 #define ENCODER_FRONT_RIGHT_A    11                                     
 #define ENCODER_FRONT_RIGHT_B    12  
 
-#define IR_DETECTOR         14                                                 // GPIO14 pin 17 (J14) IR detector input
+#define IR_DETECTOR         14                                                 // GPIO14 pin 14 IR detector input
 
 #define MODE_BUTTON         0                                                  // GPIO0  pin 27 for Push Button 1
 #define MOTOR_ENABLE_SWITCH 3                                                  // DIP Switch S1-1 pulls Digital pin D3 to ground when on, connected to pin 15 GPIO3 (J3)
@@ -56,10 +52,10 @@ struct Encoder {
 
 const int cDisplayUpdate = 100;                                                // update interval for Smart LED in milliseconds
 const int cNumMotors = 4;                                                      // number of DC motors
-const int cIN1Pin[] = {FRONT_LEFT_A, FRONT_RIGHT_A,BACK_LEFT_A,BACK_RIGHT_A};                           // GPIO pin(s) for INT1
-const int cIN1Chan[] = {0, 1, 2, 3};                                                 // PWM channe(s) for INT1
+const int cIN1Pin[] = {FRONT_LEFT_A, FRONT_RIGHT_A,BACK_LEFT_A,BACK_RIGHT_A};                          // GPIO pin(s) for INT1
+const int cIN1Chan[] = {0, 1, 2, 3};                                                                   // PWM channe(s) for INT1
 const int cIN2Pin[] = {FRONT_LEFT_B, FRONT_RIGHT_B,BACK_LEFT_B,BACK_RIGHT_B};                          // GPIO pin(s) for INT2
-const int cIN2Chan[] = {4, 5, 6, 7};                                                 // PWM channel(s) for INT2
+const int cIN2Chan[] = {4, 5, 6, 7};                                                                   // PWM channel(s) for INT2
 const int cPWMRes = 8;                                                         // bit resolution for PWM
 const int cMinPWM = 150;                                                       // PWM value for minimum speed that turns motor
 const int cMaxPWM = pow(2, cPWMRes) - 1;                                       // PWM value for maximum speed
@@ -70,17 +66,19 @@ boolean motorsEnabled = true;                                                  /
 unsigned char driveSpeed;                                                      // motor drive speed (0-255)
 unsigned char driveIndex;                                                      // state index for run mode
 unsigned int  modePBDebounce;                                                  // pushbutton debounce timer count
-unsigned long timer = 0;                                                       // 3 second timer count in milliseconds
+unsigned long timer = 0;                                                       // timer count in milliseconds
 unsigned long displayTime;                                                     // heartbeat LED update timer
 unsigned long previousMillis;                                                  // last millisecond count
 unsigned long currentMillis;                                                   // current millisecond count
 
-// step counter
+// boolean variables to conduct drive system step by step
 bool step1 = false;
 bool step2 = false;
 bool step3 = false;
 bool step4 = false;
 bool step5 = false;
+
+// count of cycles to end the fixed pattern 
 int  count = 0; 
 
 Adafruit_NeoPixel SmartLEDs(SMART_LED_COUNT, SMART_LED, NEO_RGB + NEO_KHZ800);
@@ -122,11 +120,10 @@ void setup()
      pinMode(encoder[k].chanA, INPUT);                                        // configure GPIO for encoder channel A input
      pinMode(encoder[k].chanB, INPUT);                                        // configure GPIO for encoder channel B input
      // configure encoder to trigger interrupt with each rising edge on channel A
-     attachInterruptArg(encoder[k].chanA, encoderISR, &encoder[k], RISING);
+     attachInterruptArg(encoder[k].chanA, encoderISR, &encoder[k], RISING);    
+  }
 
-      
- }
- Scan.Begin(IR_DETECTOR, 1200);                                              //set up IR Detection @ 1200 baud
+  Scan.Begin(IR_DETECTOR, 1200);                                              //set up IR Detection @ 1200 baud
 
   // Set up SmartLED
   SmartLEDs.begin();                                                          // initialize smart LEDs object (REQUIRED)
@@ -152,12 +149,9 @@ void loop()
   }
   interrupts();                                                               // turn interrupts back on
 
-// 8800 to go left . drive index 2 
-// 9000 to go right. drive index 1
-// extra right value
 
 
-    if (step1 == false) { 
+    if (step1 == false) { // sets drive index to forward drive
                                               
           timer = 0;                                                   
           step1 = true;
@@ -166,53 +160,53 @@ void loop()
     }
     if (step2 == false && step1 == true) { 
      timer = timer + 1;                                    
-      if (timer > 75000) {                             
+      if (timer > 75000) { //car drives forward for 75000 counts                      
          timer = 0;                                                  
          step2 = true;
-         driveIndex = 1;                                                     
+         driveIndex = 1;  // drive index to turn right                                           
       }
 
     }
 
     if (step3 == false && step2 == true) {
      timer = timer + 1;                                     
-      if (timer > 9100) {     //extra right for compensation                                
+      if (timer > 9100) {     //timer has an larger value for right for compensation of the car's curved path                       
         timer = 0;                                         
         step3 = true;                                                    
       }
     }
 
-    if (step4 == false && step3 == true) {  // right 180 turn
+    if (step4 == false && step3 == true) {  // step for a 180 right turn 
      driveIndex = 4;  
      timer = timer + 1;                                    
-      if (timer > 60000) {                                                                          
+      if (timer > 60000) {  // drives from one end of the path to the other                                                        
         driveIndex = 1;                                                   
       }
-      if (timer > 69100) {                            
+      if (timer > 69100) {  // completes 90 degree right                      
         driveIndex = 4;                                                   
       }
-      if (timer > 75400) {                             
+      if (timer > 75400) {  // drives bodylength ahead                        
         driveIndex = 1;                                                   
       }
-      if (timer > 84500){
+      if (timer > 84500){   // completes 90 degree right
          timer= 0;                                         
         step4 = true;
       }
     }
 
-     if (step4 == true && step5 == false) {  // left 180 turn
+     if (step4 == true && step5 == false) {  // step for a 180 left turn 
     driveIndex = 4;  
      timer = timer + 1;                                    
-      if (timer > 60000) {                                                                          
+      if (timer > 60000) {  // drives from one end of the path to the other                                                                        
         driveIndex = 2;                                                   
       }
-      if (timer > 69100) {                            
+      if (timer > 69100) {  // completes 90 degree left                 
         driveIndex = 4;                                                   
       }
-      if (timer > 75400) {                             
+      if (timer > 75400) {  // drives bodylength ahead                           
         driveIndex = 2;                                                   
       }
-      if (timer > 84500){
+      if (timer > 84500){   // completes 90 degree left
          timer= 0;                                         
         step5 = true;
       }
@@ -220,27 +214,27 @@ void loop()
 
   if (step5 == true) {
                                            
-        if (count<2 ){
-        step4 = false;
+        if (count<2 ){     // loop of steps stops after two cycles of left turns
+        step4 = false;     
         step5 = false;
         count++;
         }
-    else {
+    else {                    
         if(Scan.Available()){
-           driveIndex = 1;
-             Serial.println(Scan.Get_IR_Data());                              // output received data to serial
-          if (Scan.Get_IR_Data() == 'U'){
+           driveIndex = 1;                                             // starts a continous right turn after two counts and looks for the IR beacon
+             Serial.println(Scan.Get_IR_Data());                       // output received data to serial
+          if (Scan.Get_IR_Data() == 'U'){                              // continous loop with timers to ensure it is directly facing the beacon
              timer = timer +1;
-               Serial.println("in loop");                              // output received data to serial
-            driveIndex = 4; 
+               Serial.println("in loop");                   
+            driveIndex = 4;                                            // drives foward towards the IR beacon i=on the ramp
           }
           if (timer>30){
-            driveIndex = 3;
-              Serial.println("backing up");                              // output received data to serial
+            driveIndex = 3;                                            // reverses from the ramp
+              Serial.println("backing up");                    
           }
           if (timer > 60){
-            driveIndex = 0;
-              Serial.println("the end");                              // output received data to serial
+            driveIndex = 0;                                            // stops after backing away from the ramp
+              Serial.println("the end");           
             
           }
         }
@@ -271,9 +265,9 @@ void loop()
            if(modePBDebounce >= 1025) {                                       // if pushbutton was released for 25 mS
               modePBDebounce = 0;                                             // reset debounce timer count
               robotModeIndex++;                                               // switch to next mode
-              robotModeIndex = robotModeIndex & 7;                            // keep mode index between 0 and 7
+              robotModeIndex = robotModeIndex & 1;                            // keep mode index between 0 and 7
               timer = 0;                                                      // reset timer count
-              step1 = false;
+              step1 = false;                                                  // resetting steps and count 
               step2 = false;
               step3 = false;
               step4 = false;
@@ -309,18 +303,7 @@ switch(robotModeIndex) {
               pot = analogRead(POT_R1);
               driveSpeed = map(4095, 0, 4095, cMinPWM, cMaxPWM);
 
- /*#ifdef DEBUG_DRIVE_SPEED 
-              Serial.print(F("Drive Speed: Pot R1 = "));
-              Serial.print(pot);
-              Serial.print(F(", mapped = "));
-              Serial.println(driveSpeed);
- #endif
- #ifdef DEBUG_ENCODER_COUNT
-              Serial.print(F("Left Encoder count = "));
-              Serial.print(pos[0]);
-              Serial.print(F(" Right Encoder count = "));
-              Serial.println(pos[1]);
- #endif*/
+
               if (motorsEnabled) {                                            // run motors only if enabled
                                                            
                     
@@ -375,25 +358,6 @@ switch(robotModeIndex) {
            }
            break;
 
-        case 2: //add your code to do something 
-           robotModeIndex = 0; //  !!!!!!!  remove if using the case
-           break;
-
-        case 3: //add your code to do something 
-           robotModeIndex = 0; //  !!!!!!!  remove if using the case
-           break;
-
-        case 4: //add your code to do something 
-           robotModeIndex = 0; //  !!!!!!!  remove if using the case
-           break;
-
-        case 5: //add your code to do something 
-           robotModeIndex = 0; //  !!!!!!!  remove if using the case
-           break;
-
-        case 6: //add your code to do something 
-           robotModeIndex = 0; //  !!!!!!!  remove if using the case
-           break;
 }
 
 // Update brightness of heartbeat display on SmartLED
